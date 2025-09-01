@@ -2,6 +2,7 @@ package com.mohan.class_com.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Table(name = "merchants")
+@Builder
 public class Merchant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
