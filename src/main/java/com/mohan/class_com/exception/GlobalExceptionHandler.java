@@ -28,4 +28,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleResourceAlreadyEx(Exception ex, HttpServletRequest request){
         return buildResponse(ex,HttpStatus.BAD_REQUEST,request.getRequestURI());
     }
+
+    @ExceptionHandler(ResourceNotFoundEx.class)
+    public ResponseEntity<ErrorResponseDto> handleResourceNotFound(Exception ex, HttpServletRequest request){
+        return buildResponse(ex, HttpStatus.NOT_FOUND, request.getRequestURI());
+    }
 }

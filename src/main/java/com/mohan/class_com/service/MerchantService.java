@@ -4,10 +4,12 @@ import com.mohan.class_com.dto.MerchantRequestDto;
 import com.mohan.class_com.dto.ResponseDto;
 import com.mohan.class_com.entity.Merchant;
 import com.mohan.class_com.exception.ResourceAlreadyExistsEx;
+import com.mohan.class_com.exception.ResourceNotFoundEx;
 import com.mohan.class_com.repository.MerchantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,6 +41,35 @@ public class MerchantService {
         Merchant savedMerchant= merchantRepo.save(merchant);
 
         return new ResponseDto("Merchant successfully Created With id "+savedMerchant.getId());
+
+    }
+
+    public List<Merchant> getAllMerchants(){
+        return merchantRepo.findAll();
+    }
+
+    public Merchant getMerchantById(Long id){
+        return merchantRepo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundEx("Merchant with id "+id+" does not exists"));
+    }
+
+    public Merchant updateMerchant(Long id,MerchantRequestDto requestDto){
+        Merchant existingMerchant= merchantRepo.findById(id)
+                .orElseThrow(()->new  ResourceNotFoundEx("Merchant with id "+id+ " does not exists"));
+
+        existingMerchant.setName(requestDto.getName());
+        existingMerchant.setCompanyName(requestDto.getCompanyName());
+        existingMerchant.setAddress(requestDto.getAddress());
+        existingMerchant.setPhoneNumber(requestDto.getPhoneNumber());
+
+        return merchantRepo.save(existingMerchant);
+    }
+
+    public void deleteMerchant(Long id){
+        Merchant existingMerchant=merchantRepo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundEx("Merchant with id "+id +" does not exosts"));
+
+        merchantRepo.delete(existingMerchant);
 
     }
 }
