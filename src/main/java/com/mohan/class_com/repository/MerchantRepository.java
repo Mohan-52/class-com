@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface MerchantRepository extends JpaRepository<Merchant, Long> {
 
     Optional<Merchant> findByCompanyName(String name);
+    Optional<Merchant> findByUser_Id(Long id);
 }

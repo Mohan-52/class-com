@@ -5,11 +5,14 @@ import com.mohan.class_com.dto.ProductResponseDto;
 import com.mohan.class_com.dto.ResponseDto;
 import com.mohan.class_com.entity.Merchant;
 import com.mohan.class_com.entity.Product;
+import com.mohan.class_com.entity.User;
 import com.mohan.class_com.exception.ResourceAlreadyExistsEx;
 import com.mohan.class_com.exception.ResourceNotFoundEx;
 import com.mohan.class_com.repository.MerchantRepository;
 import com.mohan.class_com.repository.ProductRepository;
+import com.mohan.class_com.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
@@ -22,7 +25,20 @@ public class ProductService {
     private ProductRepository productRepo;
 
     @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
     private MerchantRepository merchantRepo;
+
+    public Merchant getMerchant(){
+        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user= userRepo.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundEx("User does not exists"));
+
+        return merchantRepo.findByUser_Id(user.getId())
+                .orElseThrow(()-> new ResourceNotFoundEx("Merchant does not exists"));
+    }
 
     private ProductResponseDto mapToDto(Product product){
         ProductResponseDto response= new ProductResponseDto();
@@ -36,10 +52,9 @@ public class ProductService {
         return response;
     }
 
-    public ResponseDto createProduct(Long id,ProductRequestDto requestDto){
+    public ResponseDto createProduct(ProductRequestDto requestDto){
 
-        Merchant merchant=merchantRepo.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundEx("Merchant with id "+id + " does not exits"));
+        Merchant merchant=getMerchant();
 
        Optional<Product> existingProduct=productRepo.findByProductName(requestDto.getName());
 
@@ -67,11 +82,10 @@ public class ProductService {
                 .toList();
     }
 
-    public List<ProductResponseDto> getProductsOfMerchant(Long id){
-        Merchant merchant=merchantRepo.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundEx("Merchant with id "+id +" does not exits"));
+    public List<ProductResponseDto> getProductsOfMerchant(){
+        Merchant merchant=getMerchant();
 
-        return productRepo.findByMerchant_Id(id)
+        return productRepo.findByMerchant_Id(merchant.getId())
                 .stream()
                 .map(this::mapToDto)
                 .toList();

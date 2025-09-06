@@ -2,20 +2,14 @@ package com.mohan.class_com.service;
 
 import com.mohan.class_com.dto.CartItemResponseDto;
 import com.mohan.class_com.dto.ResponseDto;
-import com.mohan.class_com.entity.Cart;
-import com.mohan.class_com.entity.CartItem;
-import com.mohan.class_com.entity.Customer;
-import com.mohan.class_com.entity.Product;
+import com.mohan.class_com.entity.*;
 import com.mohan.class_com.exception.ResourceNotFoundEx;
-import com.mohan.class_com.repository.CartItemRepository;
-import com.mohan.class_com.repository.CartRepository;
-import com.mohan.class_com.repository.CustomerRepository;
-import com.mohan.class_com.repository.ProductRepository;
+import com.mohan.class_com.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +19,18 @@ public class CartService {
     private final CartItemRepository cartItemRepo;
     private final CustomerRepository customerRepo;
     private final ProductRepository productRepo;
+    private final UserRepository userRepo;
+
+    public Customer getCustomer(){
+        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user= userRepo.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundEx("User does not exists"));
+        return customerRepo.findByUser_Id(user.getId())
+                .orElseThrow(()-> new ResourceNotFoundEx("Customer does not exists"));
+
+
+    }
 
     public CartItemResponseDto mapToDto(CartItem cartItem){
         CartItemResponseDto response=new CartItemResponseDto();
@@ -44,8 +50,9 @@ public class CartService {
         cartRepo.save(cart);
     }
 
-    public ResponseDto addProductToCart(Long customerId, Long productId, Integer quantity){
+    public ResponseDto addProductToCart( Long productId, Integer quantity){
 
+        Long customerId= getCustomer().getId();
         Product product= productRepo.findById(productId)
                 .orElseThrow(()-> new  ResourceNotFoundEx("Product with id "+productId+" does not exists"));
 
@@ -73,7 +80,9 @@ public class CartService {
     }
 
 
-    public List<CartItemResponseDto> getItemsInCart(Long customerId){
+    public List<CartItemResponseDto> getItemsInCart(){
+        Long customerId=getCustomer().getId();
+
         Cart cart=cartRepo.findByCustomer_Id(customerId)
                 .orElseThrow(()-> new ResourceNotFoundEx("Customer does not have cart"));
 
@@ -85,7 +94,9 @@ public class CartService {
 
     }
 
-    public void removeCartItem(Long customerId, Long cartItemId){
+    public void removeCartItem(Long cartItemId){
+        Long customerId=getCustomer().getId();
+
         Cart cart=cartRepo.findByCustomer_Id(customerId)
                 .orElseThrow(()-> new ResourceNotFoundEx("Customer does not have cart"));
 
@@ -96,8 +107,9 @@ public class CartService {
 
     }
 
-    public void clearCart(Long customerId){
+    public void clearCart(){
 
+        Long customerId=getCustomer().getId();
         Cart cart=cartRepo.findByCustomer_Id(customerId)
                 .orElseThrow(()-> new ResourceNotFoundEx("Customer does not have cart"));
 

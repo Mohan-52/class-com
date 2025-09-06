@@ -16,25 +16,25 @@ import java.util.List;
 public class CartController {
     private final CartService cartService;
 
-    @PostMapping("/customer/{cstId}/product/{prodId}")
-    public ResponseEntity<ResponseDto>  addProductToCart(@PathVariable Long cstId, @PathVariable Long prodId, @RequestParam Integer quantity){
-        return new ResponseEntity<>(cartService.addProductToCart(cstId,prodId,quantity),HttpStatus.CREATED);
+    @PostMapping("/product/{prodId}")
+    public ResponseEntity<ResponseDto>  addProductToCart( @PathVariable Long prodId, @RequestParam Integer quantity){
+        return new ResponseEntity<>(cartService.addProductToCart(prodId,quantity),HttpStatus.CREATED);
     }
 
-    @GetMapping("/customer/{id}")
-    public ResponseEntity<List<CartItemResponseDto>> getMyProducts(@PathVariable Long id){
-        return ResponseEntity.ok(cartService.getItemsInCart(id));
+    @GetMapping
+    public ResponseEntity<List<CartItemResponseDto>> getMyProducts(){
+        return ResponseEntity.ok(cartService.getItemsInCart());
     }
 
-    @DeleteMapping("/customer/{cstId}/cartItem/{cartItemId}")
+    @DeleteMapping("cartItem/{cartItemId}")
     public ResponseEntity<Void> removeCartItem(@PathVariable Long cstId, @PathVariable Long cartItemId){
-        cartService.removeCartItem(cstId,cartItemId);
+        cartService.removeCartItem(cartItemId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/clear/customer/{id}")
-    public ResponseEntity<Void> clearCart(@PathVariable Long id){
-        cartService.clearCart(id);
+    @DeleteMapping("/clear")
+    public ResponseEntity<Void> clearCart(){
+        cartService.clearCart();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

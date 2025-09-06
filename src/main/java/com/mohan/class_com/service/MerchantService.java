@@ -3,10 +3,13 @@ package com.mohan.class_com.service;
 import com.mohan.class_com.dto.MerchantRequestDto;
 import com.mohan.class_com.dto.ResponseDto;
 import com.mohan.class_com.entity.Merchant;
+import com.mohan.class_com.entity.User;
 import com.mohan.class_com.exception.ResourceAlreadyExistsEx;
 import com.mohan.class_com.exception.ResourceNotFoundEx;
 import com.mohan.class_com.repository.MerchantRepository;
+import com.mohan.class_com.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +19,16 @@ import java.util.Optional;
 public class MerchantService {
     @Autowired
     private MerchantRepository merchantRepo;
+
+    @Autowired
+    private UserRepository userRepo;
+
+    public User getCurrentUser(){
+        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return userRepo.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundEx("User does not exists"));
+    }
 
     public ResponseDto registerMerchant(MerchantRequestDto requestDto){
 
@@ -36,6 +49,7 @@ public class MerchantService {
                 .address(requestDto.getAddress())
                 .phoneNumber(requestDto.getPhoneNumber())
                 .companyName(requestDto.getCompanyName())
+                .user(getCurrentUser())
         .build();
 
         Merchant savedMerchant= merchantRepo.save(merchant);
