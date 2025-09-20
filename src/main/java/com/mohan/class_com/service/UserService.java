@@ -51,7 +51,7 @@ public class UserService {
             ));
 
         }catch (Exception ex){
-            throw new InvalidCredentials("Give email or password is invalid");
+            throw new InvalidCredentials("Given email or password is invalid");
         }
 
         User user=userRepo.findByEmail(requestDto.getEmail())

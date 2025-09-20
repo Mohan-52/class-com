@@ -12,6 +12,9 @@ import com.mohan.class_com.repository.MerchantRepository;
 import com.mohan.class_com.repository.ProductRepository;
 import com.mohan.class_com.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +78,10 @@ public class ProductService {
 
     }
 
+
+    @Cacheable("products")
     public List<ProductResponseDto> getAllProducts(){
+        System.out.println("Caching is first time or not working");
         return productRepo.findAll()
                 .stream()
                 .map(this::mapToDto)
@@ -91,7 +97,18 @@ public class ProductService {
                 .toList();
     }
 
-    public ResponseDto updateProduct(Long id, ProductRequestDto productRequestDto){
+    @Cacheable(value = "product", key = "#id")
+    public ProductResponseDto getProduct(Long id){
+        System.out.println("First time or Cache not working");
+        Product product=productRepo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundEx("Product Not found"));
+        return mapToDto(product);
+
+    }
+
+    @CachePut(value = "product", key = "#id")
+    @CacheEvict(value = "products", allEntries = true)
+    public ProductResponseDto updateProduct(Long id, ProductRequestDto productRequestDto){
         Product existingProduct=productRepo.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundEx("Product with id "+id+ " does exists"));
 
@@ -100,10 +117,6 @@ public class ProductService {
         existingProduct.setDescription(productRequestDto.getDescription());
         existingProduct.setPrice(productRequestDto.getPrice());
 
-        productRepo.save(existingProduct);
-
-        return new ResponseDto("Product successfully updated");
-
-
+        return mapToDto( productRepo.save(existingProduct));
     }
 }

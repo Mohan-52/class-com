@@ -30,6 +30,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponseDto> product(@PathVariable Long id){
+        return ResponseEntity.ok(productService.getProduct(id));
+    }
+
     @PreAuthorize("hasRole('MERCHANT')")
     @GetMapping("/my-products")
     public ResponseEntity<List<ProductResponseDto>> getAllProductOfMerchant(){
@@ -38,7 +43,7 @@ public class ProductController {
 
     @PreAuthorize("hasRole('MERCHANT')")
     @PutMapping("/{prodId}")
-    public ResponseEntity<ResponseDto> updateProduct(@PathVariable Long prodId, @RequestBody ProductRequestDto requestDto){
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable Long prodId, @RequestBody ProductRequestDto requestDto){
         return ResponseEntity.ok(productService.updateProduct(prodId,requestDto));
     }
 
