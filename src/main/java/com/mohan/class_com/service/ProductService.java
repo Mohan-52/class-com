@@ -12,10 +12,16 @@ import com.mohan.class_com.repository.MerchantRepository;
 import com.mohan.class_com.repository.ProductRepository;
 import com.mohan.class_com.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,8 +81,15 @@ public class ProductService {
 
     }
 
-    public List<ProductResponseDto> getAllProducts(){
-        return productRepo.findAll()
+
+    public List<ProductResponseDto> getAllProducts(int page, int size){
+        Sort sort= Sort.by(Sort.Direction.DESC, "stock");
+
+        Pageable pageable= PageRequest.of(page,size, sort);
+
+
+        Page<Product> productPage = productRepo.findAll(pageable);
+        return productPage
                 .stream()
                 .map(this::mapToDto)
                 .toList();
@@ -91,7 +104,17 @@ public class ProductService {
                 .toList();
     }
 
-    public ResponseDto updateProduct(Long id, ProductRequestDto productRequestDto){
+
+    public ProductResponseDto getProductById(Long id){
+        System.out.println("Getting from database");
+        Product product=productRepo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundEx("Product Not found"));
+
+        return mapToDto(product);
+    }
+
+
+    public ProductResponseDto updateProduct(Long id, ProductRequestDto productRequestDto){
         Product existingProduct=productRepo.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundEx("Product with id "+id+ " does exists"));
 
@@ -100,9 +123,9 @@ public class ProductService {
         existingProduct.setDescription(productRequestDto.getDescription());
         existingProduct.setPrice(productRequestDto.getPrice());
 
-        productRepo.save(existingProduct);
+       return mapToDto( productRepo.save(existingProduct));
 
-        return new ResponseDto("Product successfully updated");
+
 
 
     }

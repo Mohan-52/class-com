@@ -3,6 +3,7 @@ package com.mohan.class_com.config;
 import com.mohan.class_com.security.CustomUserDetailsService;
 import com.mohan.class_com.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 @EnableMethodSecurity
+@EnableCaching
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;

@@ -26,8 +26,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDto>> getAllProducts(){
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<List<ProductResponseDto>> getAllProducts( @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size){
+        return ResponseEntity.ok(productService.getAllProducts(page,size));
     }
 
     @PreAuthorize("hasRole('MERCHANT')")
@@ -38,8 +38,13 @@ public class ProductController {
 
     @PreAuthorize("hasRole('MERCHANT')")
     @PutMapping("/{prodId}")
-    public ResponseEntity<ResponseDto> updateProduct(@PathVariable Long prodId, @RequestBody ProductRequestDto requestDto){
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable Long prodId, @RequestBody ProductRequestDto requestDto){
         return ResponseEntity.ok(productService.updateProduct(prodId,requestDto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id){
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
 }

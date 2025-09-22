@@ -2,8 +2,10 @@ package com.mohan.class_com.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class ProductResponseDto {
+public class ProductResponseDto implements Serializable {
     private Long productId;
     private String productName;
     private String description;
